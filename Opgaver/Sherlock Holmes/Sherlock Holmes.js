@@ -4,12 +4,16 @@ var cameraOn = true;
 
 function steal(balance, amount) {
     cameraOn = false;
-    //amount is greater than balance.
+	
+    //amount er større end than balance, så balance bliver aldrig sat.
     if (amount < balance) {
         balance = balance - amount;
     }
+	
+	//de returnerer den uændrede værdi
     return amount;
-    //de tænder ikke for kameraet igen fordi denne linje ligger efter return.
+    
+	//de tænder ikke for kameraet igen fordi denne linje ligger efter return.
     cameraOn = true;
 }
 var amount = steal(balance, 1250);
