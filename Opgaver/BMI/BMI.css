@@ -1,0 +1,22 @@
+body{
+    text-align: center;
+}
+
+button {
+    background-color: blue;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 7px;
+    margin: 5px;
+}
+
+input {
+    margin:5px;
+}
+
+.hidden{
+    display: none;
+}
