@@ -84,9 +84,6 @@ BEGIN
     );
 END¤
 
-DELIMITER ;
-
-
 -- -------------------------------------- --
 -- Create [UPDATE PROCEEDURES] procedures --
 -- -------------------------------------- --
@@ -169,7 +166,7 @@ BEGIN
     END IF;
 END¤
 
-CREATE PROCEDURE update_new_address(
+CREATE PROCEDURE update_address(
     IN `id` INT,
     IN `postal_code` VARCHAR(15),
     IN `street_address` VARCHAR(100),
@@ -206,3 +203,32 @@ END¤
 -- Create [DELETE PROCEDURES] procedures --
 -- ----------------- --
 
+CREATE PROCEDURE delete_user(
+    IN `id` INT
+)
+BEGIN
+    DELETE FROM br_user WHERE user_id = `id`
+END¤
+
+CREATE PROCEDURE delete_genre(
+    IN `value` VARCHAR(100),
+)
+BEGIN
+    DELETE FROM br_genre WHERE gen_value = `value`
+END¤
+
+CREATE PROCEDURE delete_author(
+    IN `name` VARCHAR(100),
+)
+BEGIN
+    DELETE FROM br_author WHERE auth_name = `name`
+END¤
+
+CREATE PROCEDURE delete_address(
+    IN `id` INT,
+)
+BEGIN
+    DELETE FROM br_address WHERE adr_id = `id`
+END¤
+
+DELIMITER ;
