@@ -429,15 +429,15 @@ ON br_order FOR EACH ROW BEGIN
     IF NEW.odr_status = 'Received' THEN 
         -- Add the final tax to the br_taxes.accumi_tax
         UPDATE br_taxes
-        SET accumi_tax = accumi_tax + (
+        SET accumi_tax = COALESCE(accumi_tax + (
                 NEW.odr_sold_price - (
                     SELECT br_pricing.pri_purchase_price
                     FROM br_book_order
                     JOIN br_book ON br_book_order.bo_book_id = br_book.bk_id
                     JOIN br_pricing ON br_book.bk_pricing_id = br_pricing.pri_id
-                    WHERE br_book_order.bo_ord_id = NEW.odr_id
+                    LIMIT 1
                 )
-            ) * ((SELECT tax_rate FROM br_tax WHERE tax_name = 'moms')/100),
+            ) * ((SELECT tax_rate FROM br_tax WHERE tax_name = 'moms')/100), accumi_tax),
             last_update = NOW()
         WHERE pri_id = 1;
     END IF;
