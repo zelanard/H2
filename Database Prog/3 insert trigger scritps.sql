@@ -2,19 +2,15 @@ DELIMITER ¤
 -- ----------------------------------- --
 -- create after insert trigger scripts --
 -- ----------------------------------- --
-CREATE TRIGGER tr_city_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_city_insert_after AFTER INSERT
     ON br_city FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "city_after",
         CURRENT_TIMESTAMP(),
@@ -26,20 +22,17 @@ VALUES
             NEW.city_name
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_user_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_user_insert_after AFTER INSERT
     ON br_user FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "user_after",
         CURRENT_TIMESTAMP(),
@@ -66,19 +59,17 @@ VALUES
             NEW.user_phone_number
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_pricing_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_pricing_insert_after AFTER INSERT
     ON br_pricing FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "pricing_after",
@@ -101,57 +92,51 @@ VALUES
             ", "
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_genre_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_genre_insert_after AFTER INSERT
     ON br_genre FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "genre_after",
         CURRENT_TIMESTAMP(),
         CONCAT("gen_value: ", NEW.gen_value)
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_author_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_author_insert_after AFTER INSERT
     ON br_author FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "author_after",
         CURRENT_TIMESTAMP(),
         CONCAT("auth_name: ", NEW.auth_name)
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_address_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_address_insert_after AFTER INSERT
     ON br_address FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "address_after",
@@ -177,19 +162,17 @@ VALUES
             ", "
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_order_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_order_insert_after AFTER INSERT
     ON br_order FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "order_after",
@@ -212,19 +195,32 @@ VALUES
             ", "
         )
     );
+    IF NEW.odr_status = 'Received' THEN 
+        -- Add the final tax to the br_taxes.accumi_tax
+        UPDATE br_taxes
+        SET accumi_tax = accumi_tax + (
+			NEW.odr_sold_price - (
+				SELECT br_order.odr_id, br_pricing.pri_purchase_price
+                FROM br_order
+                JOIN br_book_order ON br_order.odr_id = br_book_order.bo_ord_id
+                JOIN br_book ON br_book_order.bo_book_id = br_book.bk_id
+                JOIN br_pricing ON br_book.bk_pricing_id = br_pricing.pri_id
+                WHERE br_order.odr_id = NEW.odr_id
+			)
+		) * (SELECT tax_rate FROM br_tax),
+            last_update = NOW();
+    END IF;
+END¤
 
-END ¤ CREATE TRIGGER tr_book_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_book_insert_after AFTER INSERT
     ON br_book FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "book_after",
@@ -250,19 +246,17 @@ VALUES
             ", "
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_author_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_book_author_insert_after AFTER INSERT
     ON br_book_author FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "book_author_after",
@@ -279,19 +273,17 @@ VALUES
             ", "
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_genre_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_book_genre_insert_after AFTER INSERT
     ON br_book_genre FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "book_genre_after",
@@ -308,19 +300,17 @@ VALUES
             ", "
         )
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_order_insert_after
-AFTER
-INSERT
+CREATE TRIGGER tr_book_order_insert_after AFTER INSERT
     ON br_book_order FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
+    VALUES
     (
         NULL,
         "book_order_after",
@@ -337,207 +327,186 @@ VALUES
             ", "
         )
     );
+END¤
 
-END ¤ 
+
 -- ------------------------------------ --
 -- create before insert trigger scripts --
 -- ------------------------------------ --
-CREATE TRIGGER tr_city_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_city_before_insert BEFORE INSERT
     ON br_city FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "city_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_user_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_user_before_insert BEFORE INSERT
     ON br_user FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "user_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_pricing_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_pricing_before_insert BEFORE INSERT
     ON br_pricing FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "pricing_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_genre_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_genre_before_insert BEFORE INSERT
     ON br_genre FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "genre_before",
         CURRENT_TIMESTAMP(),
         CONCAT("gen_value: ", NEW.gen_value)
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_author_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_author_before_insert BEFORE INSERT
     ON br_author FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "author_before",
         CURRENT_TIMESTAMP(),
         CONCAT("auth_name: ", NEW.auth_name)
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_address_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_address_before_insert BEFORE INSERT
     ON br_address FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "address_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_order_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_order_before_insert BEFORE INSERT
     ON br_order FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "order_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_book_before_insert BEFORE INSERT
     ON br_book FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "book_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_author_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_book_author_before_insert BEFORE INSERT
     ON br_book_author FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "book_author_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_genre_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_book_genre_before_insert BEFORE INSERT
     ON br_book_genre FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "book_genre_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ CREATE TRIGGER tr_book_order_before_insert BEFORE
-INSERT
+CREATE TRIGGER tr_book_order_before_insert BEFORE INSERT
     ON br_book_order FOR EACH ROW BEGIN
-INSERT INTO
-    br_bogreden_log (
+    INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-VALUES
-    (
+    VALUES (
         NULL,
         "book_order_before",
         CURRENT_TIMESTAMP(),
         "Insert New Row"
     );
+END¤
 
-END ¤ DELIMITER ;
+DELIMITER ;

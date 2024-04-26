@@ -1,6 +1,6 @@
------------------------------
------ Initiate Database -----
------------------------------
+-- ----------------- --
+-- Initiate Database --
+-- ----------------- --
 -- Drop the database if it exists
 DROP DATABASE IF EXISTS bogreden;
 
@@ -19,15 +19,15 @@ DROP USER IF EXISTS 'Owner'@'localhost';
 -- Create the user 'Owner' with a password
 CREATE USER 'Owner'@'localhost' IDENTIFIED BY 'Owner!0ret';
 
--- Grant full privileges to the 'Owner' user for all tables in the CompanyDB database
+-- Grant full privileges to the 'Owner' user for all tables in the bogreden database
 GRANT ALL PRIVILEGES ON bogreden.* TO 'Owner'@'localhost';
 
 -- Apply the changes
 FLUSH PRIVILEGES;
 
----------------------------------------------
------ Create tables without forein keys -----
----------------------------------------------
+-- --------------------------------- --
+-- Create tables without forein keys --
+-- --------------------------------- --
 CREATE TABLE br_bogreden_log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     log_table_key VARCHAR(25),
@@ -60,13 +60,29 @@ CREATE TABLE br_pricing (
     pri_price_reduction DECIMAL(6, 2)
 );
 
+Create table br_tax ( -- types of taxes
+    tax_id INT AUTO_INCREMENT PRIMARY KEY,
+    tax_rate DECIMAL(6,2) NOT NULl, -- the percentage of tax
+    tax_name VARCHAR(100), -- ingoing tax, sales tax, outgoing tax
+    tax_incoming BOOLEAN NOT NULL -- false if tax is outgoing
+);
+
+-- this table only contains a single row.
+CREATE TABLE br_taxes (
+   pri_id INT AUTO_INCREMENT PRIMARY KEY, -- the id of the price
+   fk_tax_id INT NOT NULL, -- the id of the type of tax
+   Accumi_tax decimal(6,2), -- the sum of the taxes paid
+   last_update datetime, -- the last time the tax was updated
+   last_tax_paid datetime -- the last time the tax was paid
+);
+
 CREATE TABLE br_genre (gen_value VARCHAR(100) PRIMARY KEY);
 
 CREATE TABLE br_author (auth_name VARCHAR(100) PRIMARY KEY);
 
-------------------------------------------
------ create tables with forein keys -----
-------------------------------------------
+-- ------------------------------ --
+-- create tables with forein keys --
+-- ------------------------------ --
 CREATE TABLE br_address (
     adr_id INT AUTO_INCREMENT PRIMARY KEY,
     adr_postal_code VARCHAR(15) NOT NULL,
@@ -75,7 +91,7 @@ CREATE TABLE br_address (
     adr_country varchar(60) NOT NULL,
     adr_is_billing_address BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (adr_postal_code) REFERENCES br_city(city_postal_code),
-    FOREIGN KEY (adr_user_id) REFERENCES br_user(user_id)
+    FOREIGN KEY (adr_user_id) REFERENCES br_user(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE br_order (
@@ -84,7 +100,7 @@ CREATE TABLE br_order (
     odr_shipping_date TIMESTAMP,
     odr_sold_price DECIMAL(6, 2),
     odr_status Enum(
-        'Recieved',
+        'Received',
         'Processed',
         'Shipped',
         'Delivered',
@@ -106,9 +122,10 @@ CREATE TABLE br_book (
     FOREIGN KEY (bk_pricing_id) REFERENCES br_pricing(pri_id)
 );
 
-------------------------------------------
------ create tables with forein keys -----
-------------------------------------------
+-- ------------------------------ --
+-- create tables with forein keys --
+-- ------------------------------ --
+-- we don't delete the author with the book, because one author might have more books.
 CREATE TABLE br_book_author (
     ba_id INT AUTO_INCREMENT PRIMARY KEY,
     ba_book_id INT,
