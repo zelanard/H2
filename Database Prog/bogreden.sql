@@ -22,6 +22,11 @@
 --
 -- I am using COALESCE in tr_taxes_update_after. I would like to have done this in all of my triggers,
 -- but I am out of time.
+--
+-- Performance can be measured using complex joins and measuring the time they take to execute.
+-- One can also analyze the time stamps in the before and after values in the log table.
+-- one could also have used EXPLAIN or EXPLAIN ANALYZE to get information about performance when executing statements.
+
 
 -- ----------------- --
 -- Initiate Database --
