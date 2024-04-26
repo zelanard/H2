@@ -1,11 +1,8 @@
 -- ----- --
 -- Notes --
 -- ----- --
--- At the end of the file I am:
--- * Bulk inserting postal_number:cities key value 
--- pairs into the city table,
--- * Inserting 10 points of data into each table, 
--- by calling a stored procedure.
+-- see at the end of the file: '-- Bulk Insert from csv --'
+-- see at the end of the file: '-- Create [CALL insert] procedures --'
 -- 
 -- I have made some samples for delete, update and select procedures, 
 -- but I have not made all of them, as I was running short on time.
@@ -20,7 +17,11 @@
 -- If i were to Drop a procedure I would use:
 -- DROP PROCEDURE IF EXISTS procedure_name;
 -- I would probably never make a procedure to drop other procedures.
-
+--
+-- I would have changed the foreing keys to be named fk_, but i do not have time to do so now.
+--
+-- I am using COALESCE in tr_taxes_update_after. I would like to have done this in all of my triggers,
+-- but I am out of time.
 
 -- ----------------- --
 -- Initiate Database --
@@ -237,9 +238,11 @@ CREATE INDEX idx_book_genre ON br_book_genre (bg_id, bg_book_id, bg_genre);
 CREATE INDEX idx_book_order ON br_book_order (bo_id, bo_book_id, bo_ord_id);
 
 DELIMITER ¤ 
+
 -- ----------------------------------- --
 -- create after insert trigger scripts --
 -- ----------------------------------- --
+
 CREATE TRIGGER tr_city_insert_after AFTER INSERT
     ON br_city FOR EACH ROW BEGIN
     INSERT INTO br_bogreden_log (
@@ -250,13 +253,13 @@ CREATE TRIGGER tr_city_insert_after AFTER INSERT
     )
     VALUES (
         NULL,
-        "city_after",
+        'city_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "city_postal_code: ",
+            'city_postal_code: ',
             NEW.city_postal_code,
-            ", ",
-            "city_name: ",
+            ', ',
+            'city_name: ',
             NEW.city_name
         )
     );
@@ -272,28 +275,28 @@ CREATE TRIGGER tr_user_insert_after AFTER INSERT
     )
     VALUES (
         NULL,
-        "user_after",
+        'user_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "user_id: ",
+            'user_id: ',
             NEW.user_id,
-            ", ",
-            "user_first_name: ",
+            ', ',
+            'user_first_name: ',
             NEW.user_first_name,
-            ", ",
-            "user_last_name: ",
+            ', ',
+            'user_last_name: ',
             NEW.user_last_name,
-            ", ",
-            "user_username: ",
+            ', ',
+            'user_username: ',
             NEW.user_username,
-            ", ",
-            "user_password: ",
+            ', ',
+            'user_password: ',
             NEW.user_password,
-            ", ",
-            "user_email: ",
+            ', ',
+            'user_email: ',
             NEW.user_email,
-            ", ",
-            "user_phone_number: ",
+            ', ',
+            'user_phone_number: ',
             NEW.user_phone_number
         )
     );
@@ -310,24 +313,24 @@ CREATE TRIGGER tr_pricing_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "pricing_after",
+        'pricing_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "pri_id: ",
+            'pri_id: ',
             NEW.pri_id,
-            ", ",
-            "pri_purchase_price: ",
+            ', ',
+            'pri_purchase_price: ',
             NEW.pri_purchase_price,
-            ", ",
-            "pri_sales_price: ",
+            ', ',
+            'pri_sales_price: ',
             NEW.pri_sales_price,
-            ", ",
-            "pri_sale_percentage: ",
+            ', ',
+            'pri_sale_percentage: ',
             NEW.pri_sale_percentage,
-            ", ",
-            "pri_price_reduction: ",
+            ', ',
+            'pri_price_reduction: ',
             NEW.pri_price_reduction,
-            ", "
+            ', '
         )
     );
 END¤
@@ -343,9 +346,9 @@ CREATE TRIGGER tr_genre_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "genre_after",
+        'genre_after',
         CURRENT_TIMESTAMP(),
-        CONCAT("gen_value: ", NEW.gen_value)
+        CONCAT('gen_value: ', NEW.gen_value)
     );
 END¤
 
@@ -360,9 +363,9 @@ CREATE TRIGGER tr_author_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "author_after",
+        'author_after',
         CURRENT_TIMESTAMP(),
-        CONCAT("auth_name: ", NEW.auth_name)
+        CONCAT('auth_name: ', NEW.auth_name)
     );
 END¤
 
@@ -377,33 +380,33 @@ CREATE TRIGGER tr_address_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "address_after",
+        'address_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "adr_id: ",
+            'adr_id: ',
             NEW.adr_id,
-            ", ",
-            "adr_postal_code: ",
+            ', ',
+            'adr_postal_code: ',
             NEW.adr_postal_code,
-            ", ",
-            "adr_user_id: ",
+            ', ',
+            'adr_user_id: ',
             NEW.adr_user_id,
-            ", ",
-            "adr_street_address: ",
+            ', ',
+            'adr_street_address: ',
             NEW.adr_street_address,
-            ", ",
-            "adr_country: ",
+            ', ',
+            'adr_country: ',
             NEW.adr_country,
-            ", ",
-            "adr_is_billing_address: ",
+            ', ',
+            'adr_is_billing_address: ',
             NEW.adr_is_billing_address,
-            ", "
+            ', '
         )
     );
 END¤
 
-CREATE TRIGGER tr_order_insert_after AFTER INSERT ON br_order FOR EACH ROW
-BEGIN
+CREATE TRIGGER tr_order_insert_after AFTER INSERT
+ON br_order FOR EACH ROW BEGIN
     INSERT INTO br_bogreden_log (log_id, log_table_key, log_time_stamp, log_message)
     VALUES (
         NULL,
@@ -446,27 +449,27 @@ CREATE TRIGGER tr_book_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "book_after",
+        'book_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bk_id: ",
+            'bk_id: ',
             NEW.bk_id,
-            ", ",
-            "bk_pricing_id: ",
+            ', ',
+            'bk_pricing_id: ',
             NEW.bk_pricing_id,
-            ", ",
-            "bk_titel: ",
+            ', ',
+            'bk_titel: ',
             NEW.bk_titel,
-            ", ",
-            "bk_weight: ",
+            ', ',
+            'bk_weight: ',
             NEW.bk_weight,
-            ", ",
-            "bk_description: ",
+            ', ',
+            'bk_description: ',
             NEW.bk_description,
-            ", ",
-            "bk_image: ",
+            ', ',
+            'bk_image: ',
             NEW.bk_image,
-            ", "
+            ', '
         )
     );
 END¤
@@ -482,18 +485,18 @@ CREATE TRIGGER tr_book_author_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "book_author_after",
+        'book_author_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "ba_id: ",
+            'ba_id: ',
             NEW.ba_id,
-            ", ",
-            "ba_book_id: ",
+            ', ',
+            'ba_book_id: ',
             NEW.ba_book_id,
-            ", ",
-            "ba_author_name: ",
+            ', ',
+            'ba_author_name: ',
             NEW.ba_author_name,
-            ", "
+            ', '
         )
     );
 END¤
@@ -509,18 +512,18 @@ CREATE TRIGGER tr_book_genre_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "book_genre_after",
+        'book_genre_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bg_id: ",
+            'bg_id: ',
             NEW.bg_id,
-            ", ",
-            "bg_book_id: ",
+            ', ',
+            'bg_book_id: ',
             NEW.bg_book_id,
-            ", ",
-            "bg_genre: ",
+            ', ',
+            'bg_genre: ',
             NEW.bg_genre,
-            ", "
+            ', '
         )
     );
 END¤
@@ -536,18 +539,79 @@ CREATE TRIGGER tr_book_order_insert_after AFTER INSERT
     VALUES
     (
         NULL,
-        "book_order_after",
+        'book_order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bo_id: ",
+            'bo_id: ',
             NEW.bo_id,
-            ", ",
-            "bo_book_id: ",
+            ', ',
+            'bo_book_id: ',
             NEW.bo_book_id,
-            ", ",
-            "bo_ord_id: ",
+            ', ',
+            'bo_ord_id: ',
             NEW.bo_ord_id,
-            ", "
+            ', '
+        )
+    );
+END¤
+
+CREATE TRIGGER tr_tax_insert_after AFTER INSERT
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'tax_after',
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            'tax_id: ',
+            NEW.tax_id,
+            ', ',
+            'tax_rate: ',
+            NEW.tax_rate,
+            ', ',
+            'tax_name: ',
+            NEW.tax_name,
+            ', ',
+            'tax_incoming: ',
+            NEW.tax_incoming
+        )
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_insert_after AFTER INSERT
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'taxes_after',
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            'pri_id: ',
+            NEW.pri_id,
+            ', ',
+            'fk_tax_id: ',
+            NEW.fk_tax_id,
+            ', ',
+            'Accumi_tax: ',
+            NEW.Accumi_tax,
+            ', ',
+            'last_update: ',
+            NEW.last_update,
+            ', ',
+            'last_tax_paid: ',
+            NEW.last_tax_paid
         )
     );
 END¤
@@ -566,9 +630,9 @@ CREATE TRIGGER tr_city_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "city_before",
+        'city_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
@@ -582,9 +646,9 @@ CREATE TRIGGER tr_user_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "user_before",
+        'user_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
@@ -598,9 +662,9 @@ CREATE TRIGGER tr_pricing_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "pricing_before",
+        'pricing_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
@@ -614,9 +678,9 @@ CREATE TRIGGER tr_genre_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "genre_before",
+        'genre_before',
         CURRENT_TIMESTAMP(),
-        CONCAT("gen_value: ", NEW.gen_value)
+        CONCAT('gen_value: ', NEW.gen_value)
     );
 END¤
 
@@ -630,9 +694,9 @@ CREATE TRIGGER tr_author_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "author_before",
+        'author_before',
         CURRENT_TIMESTAMP(),
-        CONCAT("auth_name: ", NEW.auth_name)
+        CONCAT('auth_name: ', NEW.auth_name)
     );
 END¤
 
@@ -646,9 +710,9 @@ CREATE TRIGGER tr_address_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "address_before",
+        'address_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
@@ -662,9 +726,9 @@ CREATE TRIGGER tr_order_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "order_before",
+        'order_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
@@ -678,9 +742,9 @@ CREATE TRIGGER tr_book_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "book_before",
+        'book_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
@@ -694,47 +758,46 @@ CREATE TRIGGER tr_book_author_before_insert BEFORE INSERT
     )
     VALUES (
         NULL,
-        "book_author_before",
+        'book_author_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
-CREATE TRIGGER tr_book_genre_before_insert BEFORE INSERT
-    ON br_book_genre FOR EACH ROW BEGIN
+CREATE TRIGGER tr_tax_before_insert BEFORE INSERT
+    ON br_tax FOR EACH ROW BEGIN
     INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-    VALUES (
+    VALUES
+    (
         NULL,
-        "book_genre_before",
+        'tax_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
-CREATE TRIGGER tr_book_order_before_insert BEFORE INSERT
-    ON br_book_order FOR EACH ROW BEGIN
+CREATE TRIGGER tr_taxes_before_insert BEFORE INSERT
+    ON br_taxes FOR EACH ROW BEGIN
     INSERT INTO br_bogreden_log (
         log_id,
         log_table_key,
         log_time_stamp,
         log_message
     )
-    VALUES (
+    VALUES
+    (
         NULL,
-        "book_order_before",
+        'taxes_before',
         CURRENT_TIMESTAMP(),
-        "Insert New Row"
+        'Insert New Row'
     );
 END¤
 
-DELIMITER ;
-
-DELIMITER ¤
 
 -- ----------------------------------- --
 -- create after update trigger scripts --
@@ -751,13 +814,13 @@ ON br_city FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "city_after",
+        'city_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "city_postal_code: ",
+            'city_postal_code: ',
             NEW.city_postal_code,
-            ", ",
-            "city_name: ",
+            ', ',
+            'city_name: ',
             NEW.city_name
         )
     );
@@ -774,28 +837,28 @@ ON br_user FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "user_after",
+        'user_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "user_id: ",
+            'user_id: ',
             NEW.user_id,
-            ", ",
-            "user_first_name: ",
+            ', ',
+            'user_first_name: ',
             NEW.user_first_name,
-            ", ",
-            "user_last_name: ",
+            ', ',
+            'user_last_name: ',
             NEW.user_last_name,
-            ", ",
-            "user_username: ",
+            ', ',
+            'user_username: ',
             NEW.user_username,
-            ", ",
-            "user_password: ",
+            ', ',
+            'user_password: ',
             NEW.user_password,
-            ", ",
-            "user_email: ",
+            ', ',
+            'user_email: ',
             NEW.user_email,
-            ", ",
-            "user_phone_number: ",
+            ', ',
+            'user_phone_number: ',
             NEW.user_phone_number
         )
     );
@@ -812,24 +875,24 @@ ON br_pricing FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "pricing_after",
+        'pricing_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "pri_id: ",
+            'pri_id: ',
             NEW.pri_id,
-            ", ",
-            "pri_purchase_price: ",
+            ', ',
+            'pri_purchase_price: ',
             NEW.pri_purchase_price,
-            ", ",
-            "pri_sales_price: ",
+            ', ',
+            'pri_sales_price: ',
             NEW.pri_sales_price,
-            ", ",
-            "pri_sale_percentage: ",
+            ', ',
+            'pri_sale_percentage: ',
             NEW.pri_sale_percentage,
-            ", ",
-            "pri_price_reduction: ",
+            ', ',
+            'pri_price_reduction: ',
             NEW.pri_price_reduction,
-            ", "
+            ', '
         )
     );
 END¤
@@ -845,9 +908,9 @@ ON br_genre FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "genre_after",
+        'genre_after',
         CURRENT_TIMESTAMP(),
-        CONCAT("gen_value: ", NEW.gen_value)
+        CONCAT('gen_value: ', NEW.gen_value)
     );
 END¤
 
@@ -862,9 +925,9 @@ ON br_author FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "author_after",
+        'author_after',
         CURRENT_TIMESTAMP(),
-        CONCAT("auth_name: ", NEW.auth_name)
+        CONCAT('auth_name: ', NEW.auth_name)
     );
 END¤
 
@@ -879,27 +942,27 @@ ON br_address FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "address_after",
+        'address_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "adr_id: ",
+            'adr_id: ',
             NEW.adr_id,
-            ", ",
-            "adr_postal_code: ",
+            ', ',
+            'adr_postal_code: ',
             NEW.adr_postal_code,
-            ", ",
-            "adr_user_id: ",
+            ', ',
+            'adr_user_id: ',
             NEW.adr_user_id,
-            ", ",
-            "adr_street_address: ",
+            ', ',
+            'adr_street_address: ',
             NEW.adr_street_address,
-            ", ",
-            "adr_country: ",
+            ', ',
+            'adr_country: ',
             NEW.adr_country,
-            ", ",
-            "adr_is_billing_address: ",
+            ', ',
+            'adr_is_billing_address: ',
             NEW.adr_is_billing_address,
-            ", "
+            ', '
         )
     );
 END¤
@@ -915,24 +978,24 @@ ON br_order FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "order_after",
+        'order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "odr_id: ",
+            'odr_id: ',
             NEW.odr_id,
-            ", ",
-            "odr_user_id: ",
+            ', ',
+            'odr_user_id: ',
             NEW.odr_user_id,
-            ", ",
-            "odr_shipping_date: ",
+            ', ',
+            'odr_shipping_date: ',
             NEW.odr_shipping_date,
-            ", ",
-            "odr_sold_price: ",
+            ', ',
+            'odr_sold_price: ',
             NEW.odr_sold_price,
-            ", ",
-            "odr_status: ",
+            ', ',
+            'odr_status: ',
             NEW.odr_status,
-            ", "
+            ', '
         )
     );
 END¤
@@ -948,27 +1011,27 @@ ON br_book FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_after",
+        'book_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bk_id: ",
+            'bk_id: ',
             NEW.bk_id,
-            ", ",
-            "bk_pricing_id: ",
+            ', ',
+            'bk_pricing_id: ',
             NEW.bk_pricing_id,
-            ", ",
-            "bk_titel: ",
+            ', ',
+            'bk_titel: ',
             NEW.bk_titel,
-            ", ",
-            "bk_weight: ",
+            ', ',
+            'bk_weight: ',
             NEW.bk_weight,
-            ", ",
-            "bk_description: ",
+            ', ',
+            'bk_description: ',
             NEW.bk_description,
-            ", ",
-            "bk_image: ",
+            ', ',
+            'bk_image: ',
             NEW.bk_image,
-            ", "
+            ', '
         )
     );
 END¤
@@ -984,18 +1047,18 @@ ON br_book_author FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_author_after",
+        'book_author_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "ba_id: ",
+            'ba_id: ',
             NEW.ba_id,
-            ", ",
-            "ba_book_id: ",
+            ', ',
+            'ba_book_id: ',
             NEW.ba_book_id,
-            ", ",
-            "ba_author_name: ",
+            ', ',
+            'ba_author_name: ',
             NEW.ba_author_name,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1011,18 +1074,18 @@ ON br_book_genre FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_genre_after",
+        'book_genre_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bg_id: ",
+            'bg_id: ',
             NEW.bg_id,
-            ", ",
-            "bg_book_id: ",
+            ', ',
+            'bg_book_id: ',
             NEW.bg_book_id,
-            ", ",
-            "bg_genre: ",
+            ', ',
+            'bg_genre: ',
             NEW.bg_genre,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1038,21 +1101,74 @@ ON br_book_order FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_order_after",
+        'book_order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bo_id: ",
+            'bo_id: ',
             NEW.bo_id,
-            ", ",
-            "bo_book_id: ",
+            ', ',
+            'bo_book_id: ',
             NEW.bo_book_id,
-            ", ",
-            "bo_ord_id: ",
+            ', ',
+            'bo_ord_id: ',
             NEW.bo_ord_id,
-            ", "
+            ', '
         )
     );
 END¤
+
+CREATE TRIGGER tr_tax_update_after AFTER UPDATE
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'tax_after',
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            'tax_id: ',
+            NEW.tax_id,
+            ', ',
+            'tax_rate: ',
+            NEW.tax_rate,
+            ', ',
+            'tax_name: ',
+            NEW.tax_name,
+            ', ',
+            'tax_incoming: ',
+            NEW.tax_incoming
+        )
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_update_after AFTER UPDATE
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'taxes_after',
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            'pri_id: ', COALESCE(NEW.pri_id, 'NULL'), ', ',
+            'fk_tax_id: ', COALESCE(NEW.fk_tax_id, 'NULL'), ', ',
+            'Accumi_tax: ', COALESCE(NEW.Accumi_tax, 'NULL'), ', ',
+            'last_update: ', COALESCE(NEW.last_update, 'NULL'), ', ',
+            'last_tax_paid: ', COALESCE(NEW.last_tax_paid, 'NULL')
+        )
+    );
+END¤
+
 
 -- ------------------------------------ --
 -- create before update trigger scripts --
@@ -1069,13 +1185,13 @@ ON br_city FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "city_after",
+        'city_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "city_postal_code: ",
+            'city_postal_code: ',
             OLD.city_postal_code,
-            ", ",
-            "city_name: ",
+            ', ',
+            'city_name: ',
             OLD.city_name
         )
     );
@@ -1092,28 +1208,28 @@ ON br_user FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "user_after",
+        'user_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "user_id: ",
+            'user_id: ',
             OLD.user_id,
-            ", ",
-            "user_first_name: ",
+            ', ',
+            'user_first_name: ',
             OLD.user_first_name,
-            ", ",
-            "user_last_name: ",
+            ', ',
+            'user_last_name: ',
             OLD.user_last_name,
-            ", ",
-            "user_username: ",
+            ', ',
+            'user_username: ',
             OLD.user_username,
-            ", ",
-            "user_password: ",
+            ', ',
+            'user_password: ',
             OLD.user_password,
-            ", ",
-            "user_email: ",
+            ', ',
+            'user_email: ',
             OLD.user_email,
-            ", ",
-            "user_phone_number: ",
+            ', ',
+            'user_phone_number: ',
             OLD.user_phone_number
         )
     );
@@ -1130,24 +1246,24 @@ ON br_pricing FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "pricing_after",
+        'pricing_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "pri_id: ",
+            'pri_id: ',
             OLD.pri_id,
-            ", ",
-            "pri_purchase_price: ",
+            ', ',
+            'pri_purchase_price: ',
             OLD.pri_purchase_price,
-            ", ",
-            "pri_sales_price: ",
+            ', ',
+            'pri_sales_price: ',
             OLD.pri_sales_price,
-            ", ",
-            "pri_sale_percentage: ",
+            ', ',
+            'pri_sale_percentage: ',
             OLD.pri_sale_percentage,
-            ", ",
-            "pri_price_reduction: ",
+            ', ',
+            'pri_price_reduction: ',
             OLD.pri_price_reduction,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1163,9 +1279,9 @@ ON br_genre FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "genre_after",
+        'genre_after',
         CURRENT_TIMESTAMP(),
-        CONCAT("gen_value: ", NEW.gen_value)
+        CONCAT('gen_value: ', NEW.gen_value)
     );
 END¤
 
@@ -1180,9 +1296,9 @@ ON br_author FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "author_after",
+        'author_after',
         CURRENT_TIMESTAMP(),
-        CONCAT("auth_name: ", NEW.auth_name)
+        CONCAT('auth_name: ', NEW.auth_name)
     );
 END¤
 
@@ -1197,27 +1313,27 @@ ON br_address FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "address_after",
+        'address_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "adr_id: ",
+            'adr_id: ',
             OLD.adr_id,
-            ", ",
-            "adr_postal_code: ",
+            ', ',
+            'adr_postal_code: ',
             OLD.adr_postal_code,
-            ", ",
-            "adr_user_id: ",
+            ', ',
+            'adr_user_id: ',
             OLD.adr_user_id,
-            ", ",
-            "adr_street_address: ",
+            ', ',
+            'adr_street_address: ',
             OLD.adr_street_address,
-            ", ",
-            "adr_country: ",
+            ', ',
+            'adr_country: ',
             OLD.adr_country,
-            ", ",
-            "adr_is_billing_address: ",
+            ', ',
+            'adr_is_billing_address: ',
             OLD.adr_is_billing_address,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1233,24 +1349,24 @@ ON br_order FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "order_after",
+        'order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "odr_id: ",
+            'odr_id: ',
             OLD.odr_id,
-            ", ",
-            "odr_user_id: ",
+            ', ',
+            'odr_user_id: ',
             OLD.odr_user_id,
-            ", ",
-            "odr_shipping_date: ",
+            ', ',
+            'odr_shipping_date: ',
             OLD.odr_shipping_date,
-            ", ",
-            "odr_sold_price: ",
+            ', ',
+            'odr_sold_price: ',
             OLD.odr_sold_price,
-            ", ",
-            "odr_status: ",
+            ', ',
+            'odr_status: ',
             OLD.odr_status,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1266,27 +1382,27 @@ ON br_book FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_after",
+        'book_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bk_id: ",
+            'bk_id: ',
             OLD.bk_id,
-            ", ",
-            "bk_pricing_id: ",
+            ', ',
+            'bk_pricing_id: ',
             OLD.bk_pricing_id,
-            ", ",
-            "bk_titel: ",
+            ', ',
+            'bk_titel: ',
             OLD.bk_titel,
-            ", ",
-            "bk_weight: ",
+            ', ',
+            'bk_weight: ',
             OLD.bk_weight,
-            ", ",
-            "bk_description: ",
+            ', ',
+            'bk_description: ',
             OLD.bk_description,
-            ", ",
-            "bk_image: ",
+            ', ',
+            'bk_image: ',
             OLD.bk_image,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1302,18 +1418,18 @@ ON br_book_author FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_author_after",
+        'book_author_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "ba_id: ",
+            'ba_id: ',
             OLD.ba_id,
-            ", ",
-            "ba_book_id: ",
+            ', ',
+            'ba_book_id: ',
             OLD.ba_book_id,
-            ", ",
-            "ba_author_name: ",
+            ', ',
+            'ba_author_name: ',
             OLD.ba_author_name,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1329,18 +1445,18 @@ ON br_book_genre FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_genre_after",
+        'book_genre_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bg_id: ",
+            'bg_id: ',
             OLD.bg_id,
-            ", ",
-            "bg_book_id: ",
+            ', ',
+            'bg_book_id: ',
             OLD.bg_book_id,
-            ", ",
-            "bg_genre: ",
+            ', ',
+            'bg_genre: ',
             OLD.bg_genre,
-            ", "
+            ', '
         )
     );
 END¤
@@ -1356,25 +1472,83 @@ ON br_book_order FOR EACH ROW BEGIN
     VALUES
     (
         NULL,
-        "book_order_after",
+        'book_order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            "bo_id: ",
+            'bo_id: ',
             OLD.bo_id,
-            ", ",
-            "bo_book_id: ",
+            ', ',
+            'bo_book_id: ',
             OLD.bo_book_id,
-            ", ",
-            "bo_ord_id: ",
+            ', ',
+            'bo_ord_id: ',
             OLD.bo_ord_id,
-            ", "
+            ', '
         )
     );
 END¤
 
-DELIMITER ;
 
-DELIMITER ¤ 
+CREATE TRIGGER tr_tax_update_before BEFORE UPDATE
+ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'tax_after',
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            'tax_id: ',
+            OLD.tax_id,
+            ', ',
+            'tax_rate: ',
+            OLD.tax_rate,
+            ', ',
+            'tax_name: ',
+            OLD.tax_name,
+            ', ',
+            'tax_incoming: ',
+            OLD.tax_incoming
+        )
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_update_before BEFORE UPDATE
+ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'taxes_before',
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            'pri_id: ',
+            OLD.pri_id,
+            ', ',
+            'fk_tax_id: ',
+            OLD.fk_tax_id,
+            ', ',
+            'Accumi_tax: ',
+            OLD.Accumi_tax,
+            ', ',
+            'last_update: ',
+            OLD.last_update,
+            ', ',
+            'last_tax_paid: ',
+            OLD.last_tax_paid
+        )
+    );
+END¤
 
 -- ----------------------------------- --
 -- create after delete trigger scripts --
@@ -1390,9 +1564,9 @@ ON br_city FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "city_after",
+        'city_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤
 
@@ -1406,9 +1580,9 @@ ON br_user FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "user_after",
+        'user_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤ 
 
@@ -1422,9 +1596,9 @@ ON br_pricing FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "pricing_after",
+        'pricing_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤ 
 
@@ -1438,9 +1612,9 @@ ON br_genre FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "genre_after",
+        'genre_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤ 
 
@@ -1454,12 +1628,12 @@ ON br_author FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "author_after",
+        'author_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
     UPDATE br_book_author
-    SET ba_author_name = (SELECT auth_name FROM br_author WHERE auth_name = "unknown")
+    SET ba_author_name = (SELECT auth_name FROM br_author WHERE auth_name = 'unknown')
     WHERE ba_author_name = `ba_author_name`;
 END¤
 
@@ -1473,9 +1647,9 @@ ON br_address FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "address_after",
+        'address_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤ 
 
@@ -1489,9 +1663,9 @@ ON br_order FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "order_after",
+        'order_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤ 
 
@@ -1505,9 +1679,9 @@ ON br_book FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_after",
+        'book_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤
 
@@ -1521,9 +1695,9 @@ ON br_book_author FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_author_after",
+        'book_author_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤
 
@@ -1537,9 +1711,9 @@ ON br_book_genre FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_genre_after",
+        'book_genre_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤
 
@@ -1553,11 +1727,46 @@ ON br_book_order FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_order_after",
+        'book_order_after',
         CURRENT_TIMESTAMP(),
-        "Row Deleted"
+        'Row Deleted'
     );
 END¤ 
+
+CREATE TRIGGER tr_tax_delete_before AFTER DELETE
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'tax_after',
+        CURRENT_TIMESTAMP(),
+        'Row Deleted'
+
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_delete_before AFTER DELETE
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'taxes_after',
+        CURRENT_TIMESTAMP(),
+        'Row Deleted'
+    );
+END¤
 
 -- ------------------------------------ --
 -- create before delete trigger scripts --
@@ -1573,9 +1782,9 @@ ON br_city FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "city_after",
+        'city_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1589,9 +1798,9 @@ ON br_user FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "user_after",
+        'user_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1605,9 +1814,9 @@ ON br_pricing FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "pricing_after",
+        'pricing_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1621,9 +1830,9 @@ ON br_genre FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "genre_after",
+        'genre_after',
         CURRENT_TIMESTAMP(),
-        "Delete Row"
+        'Delete Row'
     );
 END¤
 
@@ -1637,9 +1846,9 @@ ON br_author FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "author_after",
+        'author_after',
         CURRENT_TIMESTAMP(),
-        "Delete Row"
+        'Delete Row'
     );
 END¤
 
@@ -1653,9 +1862,9 @@ ON br_address FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "address_after",
+        'address_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1669,9 +1878,9 @@ ON br_order FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "order_after",
+        'order_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1685,9 +1894,9 @@ ON br_book FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_after",
+        'book_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1701,9 +1910,9 @@ ON br_book_author FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_author_after",
+        'book_author_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1717,9 +1926,9 @@ ON br_book_genre FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_genre_after",
+        'book_genre_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
@@ -1733,15 +1942,46 @@ ON br_book_order FOR EACH ROW BEGIN
     )
     VALUES (
         NULL,
-        "book_order_after",
+        'book_order_after',
         CURRENT_TIMESTAMP(),
-        "Deleting Row"
+        'Deleting Row'
     );
 END¤
 
-DELIMITER ;
+CREATE TRIGGER tr_tax_insert_before BEFORE DELETE
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'tax_after',
+        CURRENT_TIMESTAMP(),
+        'Deleting Row'
 
-DELIMITER ¤
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_insert_before BEFORE DELETE
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        'taxes_after',
+        CURRENT_TIMESTAMP(),
+        'Deleting Row'
+    );
+END¤
 
 -- ------------------------------------- --
 -- Create [insert procedures] procedures --
@@ -1758,22 +1998,10 @@ CREATE PROCEDURE insert_new_user(
 )
 BEGIN
     IF `password` = `confirm_password` THEN
-        INSERT INTO br_user (
-            user_first_name,
-            user_last_name,
-            user_username,
-            user_password,
-            user_email,
-            user_phone_number
-        )
-        VALUES (
-            `first_name`,
-            `last_name`,
-            `username`,
-            `password`,
-            `email`,
-            `phone_number`
-        );
+        SET @sql = 'INSERT INTO br_user (user_first_name, user_last_name, user_username, user_password, user_email, user_phone_number) VALUES (?, ?, ?, ?, ?, ?)';
+        PREPARE stmt FROM @sql;
+        EXECUTE stmt USING `first_name`, `last_name`, `username`, `password`, `email`, `phone_number`;
+        DEALLOCATE PREPARE stmt;
     ELSE
         SELECT 'Passwords do not match' AS ErrorMessage;
     END IF;
@@ -1786,42 +2014,30 @@ CREATE PROCEDURE insert_new_pricing(
     IN `price_reduction` DECIMAL(6, 2)
 )
 BEGIN
-    INSERT INTO br_pricing(
-        pri_purchase_price,
-        pri_sales_price,
-        pri_sale_percentage,
-        pri_price_reduction
-    )
-    VALUES(
-        `purchase_price`,
-        `sales_price`,
-        `sale_percentage`,
-        `price_reduction`
-    );
+    SET @sql = 'INSERT INTO br_pricing (pri_purchase_price, pri_sales_price, pri_sale_percentage, pri_price_reduction) VALUES (?, ?, ?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `purchase_price`, `sales_price`, `sale_percentage`, `price_reduction`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_genre(
     IN `value` VARCHAR(100)
 )
 BEGIN
-    INSERT INTO br_genre (
-        gen_value
-    )
-    VALUES (
-        `value`
-    );
+    SET @sql = 'INSERT INTO br_genre (gen_value) VALUES (?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `value`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_author(
     IN `name` VARCHAR(100)
 )
 BEGIN
-    INSERT INTO br_author(
-        auth_name
-    )
-    VALUES(
-        `name`
-    );
+    SET @sql = 'INSERT INTO br_author (auth_name) VALUES (?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `name`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_address(
@@ -1832,20 +2048,10 @@ CREATE PROCEDURE insert_new_address(
     IN `is_billing_address` BOOLEAN
 )
 BEGIN
-    INSERT INTO br_address(
-        adr_postal_code,
-        adr_user_id,
-        adr_street_address,
-        adr_country,
-        adr_is_billing_address
-    )
-    VALUES(
-        `postal_code`,
-        `user_id`,
-        `street_address`,
-        `country`,
-        `is_billing_address`
-    );
+    SET @sql = 'INSERT INTO br_address (adr_postal_code, adr_user_id, adr_street_address, adr_country, adr_is_billing_address) VALUES (?, ?, ?, ?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `postal_code`, `user_id`, `street_address`, `country`, `is_billing_address`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_order(
@@ -1855,42 +2061,24 @@ CREATE PROCEDURE insert_new_order(
     IN `status` ENUM('Received', 'Processed', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Failed', 'On Hold')
 )
 BEGIN
-    INSERT INTO br_order(
-        odr_user_id,
-        odr_shipping_date,
-        odr_sold_price,
-        odr_status
-    )
-    VALUES(
-        `user_id`,
-        `shipping_date`,
-        `sold_price`,
-        `status`
-    );
+    SET @sql = 'INSERT INTO br_order(odr_user_id, odr_shipping_date, odr_sold_price, odr_status) VALUES (?, ?, ?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `user_id`, `shipping_date`, `sold_price`, `status`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_book(
     IN `pricing_id` INT,
-    IN `titel` VARCHAR(100),
+    IN `title` VARCHAR(100),
     IN `weight` DECIMAL(6, 4),
     IN `description` TEXT,
     IN `image` VARCHAR(50)
 )
-BEGIN 
-    INSERT INTO br_book(
-        bk_pricing_id,
-        bk_titel,
-        bk_weight,
-        bk_description,
-        bk_image
-    )
-    VALUES(
-        `pricing_id`,
-        `titel`,
-        `weight`,
-        `description`,
-        `image`
-    );
+BEGIN
+    SET @sql = 'INSERT INTO br_book (bk_pricing_id, bk_titel, bk_weight, bk_description, bk_image) VALUES (?, ?, ?, ?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `pricing_id`, `title`, `weight`, `description`, `image`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_book_author(
@@ -1898,14 +2086,10 @@ CREATE PROCEDURE insert_new_book_author(
     IN `author_name` VARCHAR(100)
 )
 BEGIN
-    INSERT INTO br_book_author(
-        ba_book_id,
-        ba_author_name
-    )
-    VALUES(
-        `book_id`,
-        `author_name`
-    );
+    SET @sql = 'INSERT INTO br_book_author (ba_book_id, ba_author_name) VALUES (?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `book_id`, `author_name`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_book_genre(
@@ -1913,30 +2097,23 @@ CREATE PROCEDURE insert_new_book_genre(
     IN `genre` VARCHAR(100)
 )
 BEGIN
-    INSERT INTO br_book_genre(
-        bg_book_id,
-        bg_genre
-    )
-    VALUES(
-        `book_id`,
-        `genre`
-    );
+    SET @sql = 'INSERT INTO br_book_genre (bg_book_id, bg_genre) VALUES (?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `book_id`, `genre`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE insert_new_book_order(
     IN `book_id` INT,
-    IN `ord_id` INT
+    IN `order_id` INT
 )
 BEGIN
-    INSERT INTO br_book_order(
-        bo_book_id,
-        bo_ord_id
-    )
-    VALUES(
-        `book_id`,
-        `ord_id`
-    );
+    SET @sql = 'INSERT INTO br_book_order (bo_book_id, bo_ord_id) VALUES (?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `book_id`, `order_id`;
+    DEALLOCATE PREPARE stmt;
 END¤
+
 
 CREATE PROCEDURE insert_new_taxes()
 BEGIN
@@ -1954,22 +2131,16 @@ BEGIN
     );
 END¤
 
-CREATE PROCEDURE insert_new_tax (
-    `rate` DECIMAL(6,2),
-    `name` VARCHAR(100),
-    `incoming` BOOLEAN
+CREATE PROCEDURE insert_new_tax(
+    IN `rate` DECIMAL(6,2),
+    IN `name` VARCHAR(100),
+    IN `incoming` BOOLEAN
 )
 BEGIN
-    INSERT INTO br_tax(
-        tax_rate,
-        tax_name,
-        tax_incoming
-    )
-    VALUES(
-        `rate`,
-        `name`,
-        `incoming`
-    );
+    SET @sql = 'INSERT INTO br_tax(tax_rate, tax_name, tax_incoming) VALUES (?, ?, ?)';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `rate`, `name`, `incoming`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 -- -------------------------------------- --
@@ -1980,6 +2151,7 @@ END¤
 -- I have chosen this aproach because I do not want 
 -- the database to contain invalid addresses.
 --
+
 CREATE PROCEDURE update_user(
     IN `id` INT,
     IN `first_name` VARCHAR(50),
@@ -1991,52 +2163,17 @@ CREATE PROCEDURE update_user(
     IN `phone_number` VARCHAR(25)
 )
 BEGIN
-    if `password` IS NOT NULL THEN
+    IF `password` IS NOT NULL THEN
         IF `password` = `confirm_password` THEN
-            -- Update password
-            UPDATE br_user
-            SET user_password = `password`
-            WHERE user_id = `id`;
+            SET @sql = 'UPDATE br_user SET user_password = ?, user_first_name = ?, user_last_name = ?, user_username = ?, user_email = ?, user_phone_number = ? WHERE user_id = ?';
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt USING `password`, `first_name`, `last_name`, `username`, `email`, `phone_number`, `id`;
+            DEALLOCATE PREPARE stmt;
         ELSE
-            -- Handle password mismatch
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Passwords do not match';
+            SELECT 'Passwords do not match' AS ErrorMessage;
         END IF;
-    END IF;
-
-    -- Update first name
-    IF `first_name` IS NOT NULL THEN
-        UPDATE br_user
-        SET user_first_name = `first_name`
-        WHERE user_id = `id`;
-    END IF;
-
-    -- Update last name
-    IF `last_name` IS NOT NULL THEN
-        UPDATE br_user
-        SET user_last_name = `last_name`
-        WHERE user_id = `id`;
-    END IF;
-
-    -- Update username
-    IF `username` IS NOT NULL THEN
-        UPDATE br_user
-        SET user_username = `username`
-        WHERE user_id = `id`;
-    END IF;
-
-    -- Update email
-    IF `email` IS NOT NULL THEN
-        UPDATE br_user
-        SET user_email = `email`
-        WHERE user_id = `id`;
-    END IF;
-
-    -- Update phone number
-    IF `phone_number` IS NOT NULL THEN
-        UPDATE br_user
-        SET user_phone_number = `phone_number`
-        WHERE user_id = `id`;
+    ELSE
+        SELECT 'Password cannot be empty' AS ErrorMessage;
     END IF;
 END¤
 
@@ -2045,11 +2182,10 @@ CREATE PROCEDURE update_genre(
     IN `new_value` VARCHAR(100)
 )
 BEGIN
-    IF `new_value` IS NOT NULL THEN
-        UPDATE br_genre
-        SET gen_value = `new_value`
-        WHERE gen_value = `current_value`;
-    END IF;
+    SET @sql = 'UPDATE br_genre SET gen_value = ? WHERE gen_value = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `new_value`, `current_value`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE update_author(
@@ -2057,76 +2193,69 @@ CREATE PROCEDURE update_author(
     IN `new_name` VARCHAR(100)
 )
 BEGIN
-    IF `new_name` IS NOT NULL THEN
-        UPDATE br_author
-        SET auth_name = `new_name`
-        WHERE auth_name = `current_name`;
-    END IF;
+    SET @sql = 'UPDATE br_author SET auth_name = ? WHERE auth_name = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `new_name`, `current_name`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 CREATE PROCEDURE update_address(
     IN `id` INT,
     IN `postal_code` VARCHAR(15),
     IN `street_address` VARCHAR(100),
-    IN `country` varchar(60),
+    IN `country` VARCHAR(60),
     IN `is_billing_address` BOOLEAN
 )
 BEGIN
-    IF `postal_code` IS NOT NULL THEN
-        UPDATE br_address
-        SET adr_postal_code = `postal_code`
-        WHERE adr_id = `id`;
-    END IF;
-    
-    IF `street_address` IS NOT NULL THEN
-        UPDATE br_address
-        SET adr_street_address = `street_address`
-        WHERE adr_id = `id`;
-    END IF;
-    
-    IF `country` IS NOT NULL THEN
-        UPDATE br_address
-        SET adr_country = `country`
-        WHERE adr_id = `id`;
-    END IF;
-
-    IF `is_billing_address` IS NOT NULL THEN
-        UPDATE br_address
-        SET adr_is_billing_address = `is_billing_address`
-        WHERE adr_id = `id`;
-    END IF;
+    SET @sql = 'UPDATE br_address SET adr_postal_code = ?, adr_street_address = ?, adr_country = ?, adr_is_billing_address = ? WHERE adr_id = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `postal_code`, `street_address`, `country`, `is_billing_address`, `id`;
+    DEALLOCATE PREPARE stmt;
 END¤
-
 -- ------------------------------------- --
 -- Create [DELETE PROCEDURES] procedures --
 -- ------------------------------------- --
 
-CREATE PROCEDURE delete_user(
-    IN `id` INT
-)
-BEGIN
-    DELETE FROM br_user WHERE user_id = `id`;
+CREATE PROCEDURE delete_user(IN `id` INT) BEGIN
+    SET @sql = 'DELETE FROM br_user WHERE user_id = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `id`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
-CREATE PROCEDURE delete_genre(
-    IN `value` VARCHAR(100)
-)
-BEGIN
-    DELETE FROM br_genre WHERE gen_value = `value`;
+CREATE PROCEDURE delete_genre(IN `value` VARCHAR(100)) BEGIN
+    SET @sql = 'DELETE FROM br_genre WHERE gen_value = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `value`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
-CREATE PROCEDURE delete_author(
-    IN `name` VARCHAR(100)
-)
-BEGIN
-    DELETE FROM br_author WHERE auth_name = `name`;
+CREATE PROCEDURE delete_author(IN `name` VARCHAR(100)) BEGIN
+    SET @sql = 'DELETE FROM br_author WHERE auth_name = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `name`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
-CREATE PROCEDURE delete_address(
-    IN `id` INT
-)
-BEGIN
-    DELETE FROM br_address WHERE adr_id = `id`;
+CREATE PROCEDURE delete_address(IN `id` INT) BEGIN
+    SET @sql = 'DELETE FROM br_address WHERE adr_id = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `id`;
+    DEALLOCATE PREPARE stmt;
+END¤
+
+CREATE PROCEDURE delete_book(IN `id` INT) BEGIN
+    SET @sql = 'DELETE FROM br_book WHERE bk_id = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `id`;
+    DEALLOCATE PREPARE stmt;
+END¤
+
+CREATE PROCEDURE delete_order(IN `id` INT)BEGIN
+    SET @sql = 'DELETE FROM br_order WHERE order_id = ?';
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING `id`;
+    DEALLOCATE PREPARE stmt;
 END¤
 
 DELIMITER ;
@@ -2135,7 +2264,7 @@ DELIMITER ;
 -- Bulk Insert from csv --
 -- -------------------- --
 
-LOAD DATA INFILE "D:\\Skole\\H2\\Database Prog\\postnumre.csv"
+LOAD DATA INFILE 'D:\\Skole\\H2\\Database Prog\\postnumre.csv'
 INTO TABLE br_city
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
@@ -2159,7 +2288,7 @@ CALL insert_new_user('Sophia', 'Garcia', 'sophiag', 'passabcword', 'passabcword'
 CALL insert_new_user('Daniel', 'Lopez', 'daniell', 'passxyzword', 'passxyzword', 'daniel@example.com', '6666666666');
 
 -- Call insert_new_tax procedure 1 tax type
-CALL insert_new_tax(25, "moms", TRUE);
+CALL insert_new_tax(25, 'moms', TRUE);
 
 -- Call insert_new_tax procedure 1 tax type
 CALL insert_new_taxes();

@@ -318,6 +318,67 @@ ON br_book_order FOR EACH ROW BEGIN
     );
 END¤
 
+CREATE TRIGGER tr_tax_update_after AFTER UPDATE
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "tax_after",
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            "tax_id: ",
+            NEW.tax_id,
+            ", ",
+            "tax_rate: ",
+            NEW.tax_rate,
+            ", ",
+            "tax_name: ",
+            NEW.tax_name,
+            ", ",
+            "tax_incoming: ",
+            NEW.tax_incoming
+        )
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_update_after AFTER UPDATE
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "taxes_after",
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            "pri_id: ",
+            NEW.pri_id,
+            ", ",
+            "fk_tax_id: ",
+            NEW.fk_tax_id,
+            ", ",
+            "Accumi_tax: ",
+            NEW.Accumi_tax,
+            ", ",
+            "last_update: ",
+            NEW.last_update,
+            ", ",
+            "last_tax_paid: ",
+            NEW.last_tax_paid
+        )
+    );
+END¤
+
 -- ------------------------------------ --
 -- create before update trigger scripts --
 -- ------------------------------------ --
@@ -635,5 +696,67 @@ ON br_book_order FOR EACH ROW BEGIN
         )
     );
 END¤
+
+CREATE TRIGGER tr_tax_update_before BEFORE UPDATE
+ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "tax_after",
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            "tax_id: ",
+            OLD.tax_id,
+            ", ",
+            "tax_rate: ",
+            OLD.tax_rate,
+            ", ",
+            "tax_name: ",
+            OLD.tax_name,
+            ", ",
+            "tax_incoming: ",
+            OLD.tax_incoming
+        )
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_update_before AFTER UPDATE
+ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "taxes_after",
+        CURRENT_TIMESTAMP(),
+        CONCAT(
+            "pri_id: ",
+            OLD.pri_id,
+            ", ",
+            "fk_tax_id: ",
+            OLD.fk_tax_id,
+            ", ",
+            "Accumi_tax: ",
+            OLD.Accumi_tax,
+            ", ",
+            "last_update: ",
+            OLD.last_update,
+            ", ",
+            "last_tax_paid: ",
+            OLD.last_tax_paid
+        )
+    );
+END¤
+
 
 DELIMITER ;

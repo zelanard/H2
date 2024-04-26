@@ -183,6 +183,41 @@ ON br_book_order FOR EACH ROW BEGIN
     );
 END¤ 
 
+CREATE TRIGGER tr_tax_delete_before AFTER DELETE
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "tax_after",
+        CURRENT_TIMESTAMP(),
+        "Row Deleted"
+
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_delete_before AFTER DELETE
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "taxes_after",
+        CURRENT_TIMESTAMP(),
+        "Row Deleted"
+    );
+END¤
+
 -- ------------------------------------ --
 -- create before delete trigger scripts --
 -- ------------------------------------ --
@@ -362,5 +397,41 @@ ON br_book_order FOR EACH ROW BEGIN
         "Deleting Row"
     );
 END¤
+
+CREATE TRIGGER tr_tax_insert_before BEFORE DELETE
+    ON br_tax FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "tax_after",
+        CURRENT_TIMESTAMP(),
+        "Deleting Row"
+
+    );
+END¤
+
+CREATE TRIGGER tr_taxes_insert_before BEFORE DELETE
+    ON br_taxes FOR EACH ROW BEGIN
+    INSERT INTO br_bogreden_log (
+        log_id,
+        log_table_key,
+        log_time_stamp,
+        log_message
+    )
+    VALUES
+    (
+        NULL,
+        "taxes_after",
+        CURRENT_TIMESTAMP(),
+        "Deleting Row"
+    );
+END¤
+
 
 DELIMITER ;
