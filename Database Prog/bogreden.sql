@@ -99,7 +99,7 @@ CREATE TABLE br_tax ( -- types of taxes
 
 -- this table only contains a single row.
 CREATE TABLE br_taxes (
-   pri_id INT AUTO_INCREMENT PRIMARY KEY, -- the id of the price
+   pri_id INT AUTO_INCREMENT PRIMARY KEY, -- id of the tax
    fk_tax_id INT NOT NULL, -- the id of the type of tax
    Accumi_tax decimal(6,2), -- the sum of the taxes paid
    last_update datetime, -- the last time the tax was updated
