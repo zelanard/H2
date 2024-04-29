@@ -20,9 +20,6 @@
 --
 -- I would have changed the foreing keys to be named fk_, but i do not have time to do so now.
 --
--- I am using COALESCE in tr_taxes_update_after. I would like to have done this in all of my triggers,
--- but I am out of time.
---
 -- Performance can be measured using complex joins and measuring the time they take to execute.
 -- One can also analyze the time stamps in the before and after values in the log table.
 -- one could also have used EXPLAIN or EXPLAIN ANALYZE to get information about performance when executing statements.
@@ -261,11 +258,8 @@ CREATE TRIGGER tr_city_insert_after AFTER INSERT
         'city_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'city_postal_code: ',
-            NEW.city_postal_code,
-            ', ',
-            'city_name: ',
-            NEW.city_name
+            'city_postal_code: ', COALESCE(NEW.city_postal_code, "NULL"), ', ',
+            'city_name: ', COALESCE(NEW.city_name, "NULL")
         )
     );
 END¤
@@ -283,26 +277,13 @@ CREATE TRIGGER tr_user_insert_after AFTER INSERT
         'user_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'user_id: ',
-            NEW.user_id,
-            ', ',
-            'user_first_name: ',
-            NEW.user_first_name,
-            ', ',
-            'user_last_name: ',
-            NEW.user_last_name,
-            ', ',
-            'user_username: ',
-            NEW.user_username,
-            ', ',
-            'user_password: ',
-            NEW.user_password,
-            ', ',
-            'user_email: ',
-            NEW.user_email,
-            ', ',
-            'user_phone_number: ',
-            NEW.user_phone_number
+            'user_id: ', COALESCE(NEW.user_id), ', ',
+            'user_first_name: ', COALESCE(NEW.user_first_name,"NULL"), ', ',
+            'user_last_name: ', COALESCE(NEW.user_last_name,"NULL"), ', ',
+            'user_username: ', COALESCE(NEW.user_username,"NULL"), ', ',
+            'user_password: ', COALESCE(NEW.user_password,"NULL"), ', ',
+            'user_email: ', COALESCE(NEW.user_email,"NULL"), ', ',
+            'user_phone_number: ', COALESCE(NEW.user_phone_number,"NULL")
         )
     );
 END¤
@@ -321,21 +302,11 @@ CREATE TRIGGER tr_pricing_insert_after AFTER INSERT
         'pricing_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'pri_id: ',
-            NEW.pri_id,
-            ', ',
-            'pri_purchase_price: ',
-            NEW.pri_purchase_price,
-            ', ',
-            'pri_sales_price: ',
-            NEW.pri_sales_price,
-            ', ',
-            'pri_sale_percentage: ',
-            NEW.pri_sale_percentage,
-            ', ',
-            'pri_price_reduction: ',
-            NEW.pri_price_reduction,
-            ', '
+            'pri_id: ', COALESCE(NEW.pri_id,"NULL"), ', ',
+            'pri_purchase_price: ', COALESCE(NEW.pri_purchase_price,"NULL"), ', ',
+            'pri_sales_price: ', COALESCE(NEW.pri_sales_price,"NULL"), ', ',
+            'pri_sale_percentage: ', COALESCE(NEW.pri_sale_percentage,"NULL"), ', ',
+            'pri_price_reduction: ', COALESCE(NEW.pri_price_reduction,"NULL")
         )
     );
 END¤
@@ -353,7 +324,7 @@ CREATE TRIGGER tr_genre_insert_after AFTER INSERT
         NULL,
         'genre_after',
         CURRENT_TIMESTAMP(),
-        CONCAT('gen_value: ', NEW.gen_value)
+        CONCAT('gen_value: ', COALESCE(NEW.gen_value, "NULL"))
     );
 END¤
 
@@ -370,7 +341,7 @@ CREATE TRIGGER tr_author_insert_after AFTER INSERT
         NULL,
         'author_after',
         CURRENT_TIMESTAMP(),
-        CONCAT('auth_name: ', NEW.auth_name)
+        CONCAT('auth_name: ', COALESCE(NEW.auth_name, "NULL"))
     );
 END¤
 
@@ -388,28 +359,17 @@ CREATE TRIGGER tr_address_insert_after AFTER INSERT
         'address_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'adr_id: ',
-            NEW.adr_id,
-            ', ',
-            'adr_postal_code: ',
-            NEW.adr_postal_code,
-            ', ',
-            'adr_user_id: ',
-            NEW.adr_user_id,
-            ', ',
-            'adr_street_address: ',
-            NEW.adr_street_address,
-            ', ',
-            'adr_country: ',
-            NEW.adr_country,
-            ', ',
-            'adr_is_billing_address: ',
-            NEW.adr_is_billing_address,
-            ', '
+            'adr_id: ', COALESCE(NEW.adr_id,"NULL"), ', ',
+            'adr_postal_code: ', COALESCE(NEW.adr_postal_code,"NULL"), ', ',
+            'adr_user_id: ', COALESCE(NEW.adr_user_id,"NULL"), ', ',
+            'adr_street_address: ', COALESCE(NEW.adr_street_address,"NULL"), ', ',
+            'adr_country: ', COALESCE(NEW.adr_country,"NULL"), ', ',
+            'adr_is_billing_address: ', COALESCE(NEW.adr_is_billing_address,"NULL")
         )
     );
 END¤
 
+-- In this method, we first log and the we update the taxes
 CREATE TRIGGER tr_order_insert_after AFTER INSERT
 ON br_order FOR EACH ROW BEGIN
     INSERT INTO br_bogreden_log (log_id, log_table_key, log_time_stamp, log_message)
@@ -426,6 +386,7 @@ ON br_order FOR EACH ROW BEGIN
         )
     );
 
+    -- handle taxes - this could have been made as a separate trigger.
     IF NEW.odr_status = 'Received' THEN 
         -- Add the final tax to the br_taxes.accumi_tax
         UPDATE br_taxes
@@ -457,24 +418,12 @@ CREATE TRIGGER tr_book_insert_after AFTER INSERT
         'book_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bk_id: ',
-            NEW.bk_id,
-            ', ',
-            'bk_pricing_id: ',
-            NEW.bk_pricing_id,
-            ', ',
-            'bk_titel: ',
-            NEW.bk_titel,
-            ', ',
-            'bk_weight: ',
-            NEW.bk_weight,
-            ', ',
-            'bk_description: ',
-            NEW.bk_description,
-            ', ',
-            'bk_image: ',
-            NEW.bk_image,
-            ', '
+            'bk_id: ', COALESCE(NEW.bk_id,"NULL"), ', ',
+            'bk_pricing_id: ', COALESCE(NEW.bk_pricing_id,"NULL"), ', ',
+            'bk_titel: ', COALESCE(NEW.bk_titel,"NULL"), ', ',
+            'bk_weight: ', COALESCE(NEW.bk_weight,"NULL"), ', ',
+            'bk_description: ', COALESCE(NEW.bk_description,"NULL"), ', ',
+            'bk_image: ', COALESCE(NEW.bk_image,"NULL")
         )
     );
 END¤
@@ -493,15 +442,9 @@ CREATE TRIGGER tr_book_author_insert_after AFTER INSERT
         'book_author_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'ba_id: ',
-            NEW.ba_id,
-            ', ',
-            'ba_book_id: ',
-            NEW.ba_book_id,
-            ', ',
-            'ba_author_name: ',
-            NEW.ba_author_name,
-            ', '
+            'ba_id: ', COALESCE(NEW.ba_id,"NULL"), ', ',
+            'ba_book_id: ', COALESCE(NEW.ba_book_id,"NULL"), ', ',
+            'ba_author_name: ', COALESCE(NEW.ba_author_name,"NULL")
         )
     );
 END¤
@@ -520,15 +463,9 @@ CREATE TRIGGER tr_book_genre_insert_after AFTER INSERT
         'book_genre_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bg_id: ',
-            NEW.bg_id,
-            ', ',
-            'bg_book_id: ',
-            NEW.bg_book_id,
-            ', ',
-            'bg_genre: ',
-            NEW.bg_genre,
-            ', '
+            'bg_id: ', COALESCE(NEW.bg_id, "NULL"), ', ',
+            'bg_book_id: ', COALESCE(NEW.bg_book_id, "NULL"), ', ',
+            'bg_genre: ', COALESCE(NEW.bg_genre, "NULL")
         )
     );
 END¤
@@ -547,15 +484,9 @@ CREATE TRIGGER tr_book_order_insert_after AFTER INSERT
         'book_order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bo_id: ',
-            NEW.bo_id,
-            ', ',
-            'bo_book_id: ',
-            NEW.bo_book_id,
-            ', ',
-            'bo_ord_id: ',
-            NEW.bo_ord_id,
-            ', '
+            'bo_id: ', COALESCE(NEW.bo_id, "NULL"), ', ',
+            'bo_book_id: ', COALESCE(NEW.bo_book_id, "NULL"), ', ',
+            'bo_ord_id: ', COALESCE(NEW.bo_ord_id, "NULL")
         )
     );
 END¤
@@ -574,17 +505,10 @@ CREATE TRIGGER tr_tax_insert_after AFTER INSERT
         'tax_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'tax_id: ',
-            NEW.tax_id,
-            ', ',
-            'tax_rate: ',
-            NEW.tax_rate,
-            ', ',
-            'tax_name: ',
-            NEW.tax_name,
-            ', ',
-            'tax_incoming: ',
-            NEW.tax_incoming
+            'tax_id: ', COALESCE(NEW.tax_id, "NULL"), ', ',
+            'tax_rate: ', COALESCE(NEW.tax_rate, "NULL"), ', ',
+            'tax_name: ', COALESCE(NEW.tax_name, "NULL"), ', ',
+            'tax_incoming: ', COALESCE(NEW.tax_incoming, "NULL")
         )
     );
 END¤
@@ -603,20 +527,11 @@ CREATE TRIGGER tr_taxes_insert_after AFTER INSERT
         'taxes_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'pri_id: ',
-            NEW.pri_id,
-            ', ',
-            'fk_tax_id: ',
-            NEW.fk_tax_id,
-            ', ',
-            'Accumi_tax: ',
-            NEW.Accumi_tax,
-            ', ',
-            'last_update: ',
-            NEW.last_update,
-            ', ',
-            'last_tax_paid: ',
-            NEW.last_tax_paid
+            'pri_id: ', COALESCE(NEW.pri_id, "NULL"), ', ',
+            'fk_tax_id: ', COALESCE(NEW.fk_tax_id, "NULL"), ', ',
+            'Accumi_tax: ', COALESCE(NEW.Accumi_tax, "NULL"), ', ',
+            'last_update: ', COALESCE(NEW.last_update, "NULL"), ', ',
+            'last_tax_paid: ', COALESCE(NEW.last_tax_paid, "NULL")
         )
     );
 END¤
@@ -822,11 +737,8 @@ ON br_city FOR EACH ROW BEGIN
         'city_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'city_postal_code: ',
-            NEW.city_postal_code,
-            ', ',
-            'city_name: ',
-            NEW.city_name
+            'city_postal_code: ', COALESCE(NEW.city_postal_code, "NULL"), ', ',
+            'city_name: ', COALESCE(NEW.city_name, "NULL")
         )
     );
 END¤
@@ -845,26 +757,13 @@ ON br_user FOR EACH ROW BEGIN
         'user_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'user_id: ',
-            NEW.user_id,
-            ', ',
-            'user_first_name: ',
-            NEW.user_first_name,
-            ', ',
-            'user_last_name: ',
-            NEW.user_last_name,
-            ', ',
-            'user_username: ',
-            NEW.user_username,
-            ', ',
-            'user_password: ',
-            NEW.user_password,
-            ', ',
-            'user_email: ',
-            NEW.user_email,
-            ', ',
-            'user_phone_number: ',
-            NEW.user_phone_number
+            'user_id: ', COALESCE(NEW.user_id, "NULL"), ', ',
+            'user_first_name: ', COALESCE(NEW.user_first_name, "NULL"), ', ',
+            'user_last_name: ', COALESCE(NEW.user_last_name, "NULL"), ', ',
+            'user_username: ', COALESCE(NEW.user_username, "NULL"), ', ',
+            'user_password: ', COALESCE(NEW.user_password, "NULL"), ', ',
+            'user_email: ', COALESCE(NEW.user_email, "NULL"), ', ',
+            'user_phone_number: ', COALESCE(NEW.user_phone_number, "NULL")
         )
     );
 END¤
@@ -883,21 +782,11 @@ ON br_pricing FOR EACH ROW BEGIN
         'pricing_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'pri_id: ',
-            NEW.pri_id,
-            ', ',
-            'pri_purchase_price: ',
-            NEW.pri_purchase_price,
-            ', ',
-            'pri_sales_price: ',
-            NEW.pri_sales_price,
-            ', ',
-            'pri_sale_percentage: ',
-            NEW.pri_sale_percentage,
-            ', ',
-            'pri_price_reduction: ',
-            NEW.pri_price_reduction,
-            ', '
+            'pri_id: ', COALESCE(NEW.pri_id, "NULL"), ', ',
+            'pri_purchase_price: ', COALESCE(NEW.pri_purchase_price, "NULL"), ', ',
+            'pri_sales_price: ', COALESCE(NEW.pri_sales_price, "NULL"), ', ',
+            'pri_sale_percentage: ', COALESCE(NEW.pri_sale_percentage, "NULL"), ', ',
+            'pri_price_reduction: ', COALESCE(NEW.pri_price_reduction, "NULL")
         )
     );
 END¤
@@ -915,7 +804,7 @@ ON br_genre FOR EACH ROW BEGIN
         NULL,
         'genre_after',
         CURRENT_TIMESTAMP(),
-        CONCAT('gen_value: ', NEW.gen_value)
+        CONCAT('gen_value: ', COALESCE(NEW.gen_value, "NULL"))
     );
 END¤
 
@@ -932,7 +821,7 @@ ON br_author FOR EACH ROW BEGIN
         NULL,
         'author_after',
         CURRENT_TIMESTAMP(),
-        CONCAT('auth_name: ', NEW.auth_name)
+        CONCAT('auth_name: ', COALESCE(NEW.auth_name,"NULL"))
     );
 END¤
 
@@ -950,24 +839,12 @@ ON br_address FOR EACH ROW BEGIN
         'address_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'adr_id: ',
-            NEW.adr_id,
-            ', ',
-            'adr_postal_code: ',
-            NEW.adr_postal_code,
-            ', ',
-            'adr_user_id: ',
-            NEW.adr_user_id,
-            ', ',
-            'adr_street_address: ',
-            NEW.adr_street_address,
-            ', ',
-            'adr_country: ',
-            NEW.adr_country,
-            ', ',
-            'adr_is_billing_address: ',
-            NEW.adr_is_billing_address,
-            ', '
+            'adr_id: ', COALESCE(NEW.adr_id, "NULL"), ', ',
+            'adr_postal_code: ', COALESCE(NEW.adr_postal_code, "NULL"), ', ',
+            'adr_user_id: ', COALESCE(NEW.adr_user_id, "NULL"), ', ',
+            'adr_street_address: ', COALESCE(NEW.adr_street_address, "NULL"), ', ',
+            'adr_country: ', COALESCE(NEW.adr_country, "NULL"), ', ',
+            'adr_is_billing_address: ', COALESCE(NEW.adr_is_billing_address, "NULL")
         )
     );
 END¤
@@ -986,21 +863,11 @@ ON br_order FOR EACH ROW BEGIN
         'order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'odr_id: ',
-            NEW.odr_id,
-            ', ',
-            'odr_user_id: ',
-            NEW.odr_user_id,
-            ', ',
-            'odr_shipping_date: ',
-            NEW.odr_shipping_date,
-            ', ',
-            'odr_sold_price: ',
-            NEW.odr_sold_price,
-            ', ',
-            'odr_status: ',
-            NEW.odr_status,
-            ', '
+            'odr_id: ', COALESCE(NEW.odr_id, "NULL"), ', ',
+            'odr_user_id: ', COALESCE(NEW.odr_user_id, "NULL"), ', ',
+            'odr_shipping_date: ', COALESCE(NEW.odr_shipping_date, "NULL"), ', ',
+            'odr_sold_price: ', COALESCE(NEW.odr_sold_price, "NULL"), ', ',
+            'odr_status: ', COALESCE(NEW.odr_status, "NULL")
         )
     );
 END¤
@@ -1019,24 +886,12 @@ ON br_book FOR EACH ROW BEGIN
         'book_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bk_id: ',
-            NEW.bk_id,
-            ', ',
-            'bk_pricing_id: ',
-            NEW.bk_pricing_id,
-            ', ',
-            'bk_titel: ',
-            NEW.bk_titel,
-            ', ',
-            'bk_weight: ',
-            NEW.bk_weight,
-            ', ',
-            'bk_description: ',
-            NEW.bk_description,
-            ', ',
-            'bk_image: ',
-            NEW.bk_image,
-            ', '
+            'bk_id: ', COALESCE(NEW.bk_id, "NULL"), ', ',
+            'bk_pricing_id: ', COALESCE(NEW.bk_pricing_id, "NULL"), ', ',
+            'bk_titel: ', COALESCE(NEW.bk_titel, "NULL"), ', ',
+            'bk_weight: ', COALESCE(NEW.bk_weight, "NULL"), ', ',
+            'bk_description: ', COALESCE(NEW.bk_description, "NULL"), ', ',
+            'bk_image: ', COALESCE(NEW.bk_image, "NULL")
         )
     );
 END¤
@@ -1055,15 +910,9 @@ ON br_book_author FOR EACH ROW BEGIN
         'book_author_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'ba_id: ',
-            NEW.ba_id,
-            ', ',
-            'ba_book_id: ',
-            NEW.ba_book_id,
-            ', ',
-            'ba_author_name: ',
-            NEW.ba_author_name,
-            ', '
+            'ba_id: ', COALESCE(NEW.ba_id, "NULL"), ', ',
+            'ba_book_id: ', COALESCE(NEW.ba_book_id, "NULL"), ', ',
+            'ba_author_name: ', COALESCE(NEW.ba_author_name, "NULL")
         )
     );
 END¤
@@ -1082,15 +931,9 @@ ON br_book_genre FOR EACH ROW BEGIN
         'book_genre_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bg_id: ',
-            NEW.bg_id,
-            ', ',
-            'bg_book_id: ',
-            NEW.bg_book_id,
-            ', ',
-            'bg_genre: ',
-            NEW.bg_genre,
-            ', '
+            'bg_id: ', COALESCE(NEW.bg_id, "NULL"), ', ',
+            'bg_book_id: ', COALESCE(NEW.bg_book_id, "NULL"), ', ',
+            'bg_genre: ', COALESCE(NEW.bg_genre, "NULL")
         )
     );
 END¤
@@ -1109,15 +952,9 @@ ON br_book_order FOR EACH ROW BEGIN
         'book_order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bo_id: ',
-            NEW.bo_id,
-            ', ',
-            'bo_book_id: ',
-            NEW.bo_book_id,
-            ', ',
-            'bo_ord_id: ',
-            NEW.bo_ord_id,
-            ', '
+            'bo_id: ', COALESCE(NEW.bo_id, "NULL"), ', ',
+            'bo_book_id: ', COALESCE(NEW.bo_book_id, "NULL"), ', ',
+            'bo_ord_id: ', COALESCE(NEW.bo_ord_id, "NULL")
         )
     );
 END¤
@@ -1136,17 +973,10 @@ CREATE TRIGGER tr_tax_update_after AFTER UPDATE
         'tax_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'tax_id: ',
-            NEW.tax_id,
-            ', ',
-            'tax_rate: ',
-            NEW.tax_rate,
-            ', ',
-            'tax_name: ',
-            NEW.tax_name,
-            ', ',
-            'tax_incoming: ',
-            NEW.tax_incoming
+            'tax_id: ', COALESCE(NEW.tax_id,"NULL"), ', ',
+            'tax_rate: ', COALESCE(NEW.tax_rate,"NULL"), ', ',
+            'tax_name: ', COALESCE(NEW.tax_name,"NULL"), ', ',
+            'tax_incoming: ', COALESCE(NEW.tax_incoming,"NULL")
         )
     );
 END¤
@@ -1193,11 +1023,8 @@ ON br_city FOR EACH ROW BEGIN
         'city_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'city_postal_code: ',
-            OLD.city_postal_code,
-            ', ',
-            'city_name: ',
-            OLD.city_name
+            'city_postal_code: ', COALESCE(OLD.city_postal_code, "NULL"), ', ',
+            'city_name: ', COALESCE(OLD.city_name, "NULL")
         )
     );
 END¤
@@ -1216,26 +1043,13 @@ ON br_user FOR EACH ROW BEGIN
         'user_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'user_id: ',
-            OLD.user_id,
-            ', ',
-            'user_first_name: ',
-            OLD.user_first_name,
-            ', ',
-            'user_last_name: ',
-            OLD.user_last_name,
-            ', ',
-            'user_username: ',
-            OLD.user_username,
-            ', ',
-            'user_password: ',
-            OLD.user_password,
-            ', ',
-            'user_email: ',
-            OLD.user_email,
-            ', ',
-            'user_phone_number: ',
-            OLD.user_phone_number
+            'user_id: ', COALESCE(OLD.user_id, "NULL"), ', ',
+            'user_first_name: ', COALESCE(OLD.user_first_name, "NULL"), ', ',
+            'user_last_name: ', COALESCE(OLD.user_last_name, "NULL"), ', ',
+            'user_username: ', COALESCE(OLD.user_username, "NULL"), ', ',
+            'user_password: ', COALESCE(OLD.user_password, "NULL"), ', ',
+            'user_email: ', COALESCE(OLD.user_email, "NULL"), ', ',
+            'user_phone_number: ', COALESCE(OLD.user_phone_number, "NULL")
         )
     );
 END¤
@@ -1254,21 +1068,11 @@ ON br_pricing FOR EACH ROW BEGIN
         'pricing_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'pri_id: ',
-            OLD.pri_id,
-            ', ',
-            'pri_purchase_price: ',
-            OLD.pri_purchase_price,
-            ', ',
-            'pri_sales_price: ',
-            OLD.pri_sales_price,
-            ', ',
-            'pri_sale_percentage: ',
-            OLD.pri_sale_percentage,
-            ', ',
-            'pri_price_reduction: ',
-            OLD.pri_price_reduction,
-            ', '
+            'pri_id: ', COALESCE(OLD.pri_id, "NULL"), ', ',
+            'pri_purchase_price: ', COALESCE(OLD.pri_purchase_price, "NULL"), ', ',
+            'pri_sales_price: ', COALESCE(OLD.pri_sales_price, "NULL"), ', ',
+            'pri_sale_percentage: ', COALESCE(OLD.pri_sale_percentage, "NULL"), ', ',
+            'pri_price_reduction: ', COALESCE(OLD.pri_price_reduction, "NULL")
         )
     );
 END¤
@@ -1286,7 +1090,7 @@ ON br_genre FOR EACH ROW BEGIN
         NULL,
         'genre_after',
         CURRENT_TIMESTAMP(),
-        CONCAT('gen_value: ', NEW.gen_value)
+        CONCAT('gen_value: ', COALESCE(NEW.gen_value, "NULL"))
     );
 END¤
 
@@ -1303,7 +1107,7 @@ ON br_author FOR EACH ROW BEGIN
         NULL,
         'author_after',
         CURRENT_TIMESTAMP(),
-        CONCAT('auth_name: ', NEW.auth_name)
+        CONCAT('auth_name: ', COALESCE(NEW.auth_name,"NULL"))
     );
 END¤
 
@@ -1321,24 +1125,12 @@ ON br_address FOR EACH ROW BEGIN
         'address_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'adr_id: ',
-            OLD.adr_id,
-            ', ',
-            'adr_postal_code: ',
-            OLD.adr_postal_code,
-            ', ',
-            'adr_user_id: ',
-            OLD.adr_user_id,
-            ', ',
-            'adr_street_address: ',
-            OLD.adr_street_address,
-            ', ',
-            'adr_country: ',
-            OLD.adr_country,
-            ', ',
-            'adr_is_billing_address: ',
-            OLD.adr_is_billing_address,
-            ', '
+            'adr_id: ', COALESCE(OLD.adr_id, "NULL"), ', ',
+            'adr_postal_code: ', COALESCE(OLD.adr_postal_code, "NULL"), ', ',
+            'adr_user_id: ', COALESCE(OLD.adr_user_id, "NULL"), ', ',
+            'adr_street_address: ', COALESCE(OLD.adr_street_address, "NULL"), ', ',
+            'adr_country: ', COALESCE(OLD.adr_country, "NULL"), ', ',
+            'adr_is_billing_address: ', COALESCE(OLD.adr_is_billing_address, "NULL")
         )
     );
 END¤
@@ -1357,21 +1149,11 @@ ON br_order FOR EACH ROW BEGIN
         'order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'odr_id: ',
-            OLD.odr_id,
-            ', ',
-            'odr_user_id: ',
-            OLD.odr_user_id,
-            ', ',
-            'odr_shipping_date: ',
-            OLD.odr_shipping_date,
-            ', ',
-            'odr_sold_price: ',
-            OLD.odr_sold_price,
-            ', ',
-            'odr_status: ',
-            OLD.odr_status,
-            ', '
+            'odr_id: ', COALESCE(OLD.odr_id, "NULL"), ', ',
+            'odr_user_id: ', COALESCE(OLD.odr_user_id, "NULL"), ', ',
+            'odr_shipping_date: ', COALESCE(OLD.odr_shipping_date, "NULL"), ', ',
+            'odr_sold_price: ', COALESCE(OLD.odr_sold_price, "NULL"), ', ',
+            'odr_status: ', COALESCE(OLD.odr_status, "NULL")
         )
     );
 END¤
@@ -1390,24 +1172,12 @@ ON br_book FOR EACH ROW BEGIN
         'book_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bk_id: ',
-            OLD.bk_id,
-            ', ',
-            'bk_pricing_id: ',
-            OLD.bk_pricing_id,
-            ', ',
-            'bk_titel: ',
-            OLD.bk_titel,
-            ', ',
-            'bk_weight: ',
-            OLD.bk_weight,
-            ', ',
-            'bk_description: ',
-            OLD.bk_description,
-            ', ',
-            'bk_image: ',
-            OLD.bk_image,
-            ', '
+            'bk_id: ', COALESCE(OLD.bk_id, "NULL"), ', ',
+            'bk_pricing_id: ', COALESCE(OLD.bk_pricing_id, "NULL"), ', ',
+            'bk_titel: ', COALESCE(OLD.bk_titel, "NULL"), ', ',
+            'bk_weight: ', COALESCE(OLD.bk_weight, "NULL"), ', ',
+            'bk_description: ', COALESCE(OLD.bk_description, "NULL"), ', ',
+            'bk_image: ', COALESCE(OLD.bk_image, "NULL")
         )
     );
 END¤
@@ -1426,15 +1196,9 @@ ON br_book_author FOR EACH ROW BEGIN
         'book_author_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'ba_id: ',
-            OLD.ba_id,
-            ', ',
-            'ba_book_id: ',
-            OLD.ba_book_id,
-            ', ',
-            'ba_author_name: ',
-            OLD.ba_author_name,
-            ', '
+            'ba_id: ', COALESCE(OLD.ba_id, "NULL"), ', ',
+            'ba_book_id: ', COALESCE(OLD.ba_book_id, "NULL"), ', ',
+            'ba_author_name: ', COALESCE(OLD.ba_author_name, "NULL")
         )
     );
 END¤
@@ -1453,15 +1217,9 @@ ON br_book_genre FOR EACH ROW BEGIN
         'book_genre_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bg_id: ',
-            OLD.bg_id,
-            ', ',
-            'bg_book_id: ',
-            OLD.bg_book_id,
-            ', ',
-            'bg_genre: ',
-            OLD.bg_genre,
-            ', '
+            'bg_id: ', COALESCE(OLD.bg_id, "NULL"), ', ',
+            'bg_book_id: ', COALESCE(OLD.bg_book_id, "NULL"), ', ',
+            'bg_genre: ', COALESCE(OLD.bg_genre, "NULL")
         )
     );
 END¤
@@ -1480,15 +1238,9 @@ ON br_book_order FOR EACH ROW BEGIN
         'book_order_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'bo_id: ',
-            OLD.bo_id,
-            ', ',
-            'bo_book_id: ',
-            OLD.bo_book_id,
-            ', ',
-            'bo_ord_id: ',
-            OLD.bo_ord_id,
-            ', '
+            'bo_id: ', COALESCE(OLD.bo_id, "NULL"), ', ',
+            'bo_book_id: ', COALESCE(OLD.bo_book_id, "NULL"), ', ',
+            'bo_ord_id: ', COALESCE(OLD.bo_ord_id, "NULL")
         )
     );
 END¤
@@ -1508,17 +1260,10 @@ ON br_tax FOR EACH ROW BEGIN
         'tax_after',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'tax_id: ',
-            OLD.tax_id,
-            ', ',
-            'tax_rate: ',
-            OLD.tax_rate,
-            ', ',
-            'tax_name: ',
-            OLD.tax_name,
-            ', ',
-            'tax_incoming: ',
-            OLD.tax_incoming
+            'tax_id: ', COALESCE(OLD.tax_id, "NULL"), ', ',
+            'tax_rate: ', COALESCE(OLD.tax_rate, "NULL"), ', ',
+            'tax_name: ', COALESCE(OLD.tax_name, "NULL"), ', ',
+            'tax_incoming: ', COALESCE(OLD.tax_incoming, "NULL")
         )
     );
 END¤
@@ -1537,20 +1282,11 @@ ON br_taxes FOR EACH ROW BEGIN
         'taxes_before',
         CURRENT_TIMESTAMP(),
         CONCAT(
-            'pri_id: ',
-            OLD.pri_id,
-            ', ',
-            'fk_tax_id: ',
-            OLD.fk_tax_id,
-            ', ',
-            'Accumi_tax: ',
-            OLD.Accumi_tax,
-            ', ',
-            'last_update: ',
-            OLD.last_update,
-            ', ',
-            'last_tax_paid: ',
-            OLD.last_tax_paid
+            'pri_id: ', COALESCE(OLD.pri_id, "NULL"), ', ',
+            'fk_tax_id: ', COALESCE(OLD.fk_tax_id, "NULL"), ', ',
+            'Accumi_tax: ', COALESCE(OLD.Accumi_tax, "NULL"), ', ',
+            'last_update: ', COALESCE(OLD.last_update, "NULL"), ', ',
+            'last_tax_paid: ', COALESCE(OLD.last_tax_paid, "NULL")
         )
     );
 END¤
