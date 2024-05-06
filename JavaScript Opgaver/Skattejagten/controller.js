@@ -1,4 +1,5 @@
 document.getElementById("map").addEventListener("load", findTheTreasure());
+let youFoundTheTreasure = false;
 
 /** Initializes the treasure finding game by setting 
  * up the treasure coordinates and click event listener on the map.
@@ -9,13 +10,12 @@ function findTheTreasure() {
     let xMargin = map.clientWidth * 0.10;  // Margin for error in X direction
     let yMargin = map.clientHeight * 0.10; // Margin for error in Y direction
     let attempts = 0;
-    let youFoundTheTreasure = false;
 
     // Add click event listener to the map
     document.getElementById("map").addEventListener("click", (event) => {
         ex = event.clientX;
         ey = event.clientY;
-        click(ex, ey, x, y, xMargin, yMargin, attempts, youFoundTheTreasure);
+        click(ex, ey, x, y, xMargin, yMargin, attempts);
     });
 }
 
@@ -29,21 +29,19 @@ function findTheTreasure() {
  * @param {number} attempts - Current number of attempts made.
  * @param {boolean} showTreasure - Boolean indicating if the treasure is visible.
  */
-function click(eventX, eventY, treasureX, treasureY, xMargin, yMargin, attempts, showTreasure) {
+function click(eventX, eventY, treasureX, treasureY, xMargin, yMargin, attempts) {
     let foundX = eventX >= treasureX - xMargin && eventX <= treasureX + xMargin;
     let foundY = eventY >= treasureY - yMargin && eventY <= treasureY + yMargin;
 
-    if (foundX && foundY) {
+    if (foundX && foundY && !youFoundTheTreasure) {
         alert("You found the treasure!");
         insertFailX("green", treasureX, treasureY);
-        showTreasure = true;
+        youFoundTheTreasure = true;
         return;
-    } else if (!showTreasure) {
-        showTreasure = TreasureNotFound(attempts, treasureX, treasureY, foundX, foundY);
+    } else if (!youFoundTheTreasure) {
+        youFoundTheTreasure = TreasureNotFound(attempts, treasureX, treasureY, foundX, foundY);
         attempts++;
-    }
-
-    if (showTreasure) {
+    } else {
         let renew = confirm("Do you want to start a new game?");
         if (renew) {
             location.reload();
