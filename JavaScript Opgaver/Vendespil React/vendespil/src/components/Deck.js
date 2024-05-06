@@ -4,16 +4,26 @@ import { UserContext } from "../App";
 
 export default function Deck(props) {
     const [picked, setPicked, newPick, setNewPick, resetCards, setResetCards] = useContext(UserContext);
-    const deckValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    const [deckValues, setDeckValues] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    const [deck, setDeck] = useState(shuffle(displayDeck(deckValues)));
 
     useEffect(() => {
-        if (picked == newPick) {
-            deckValues.splice(deckValues.indexOf(picked), 1);
+        if (picked && newPick) {
+            let p = picked.indexOf("-");
+            let n = newPick.indexOf("-");
+            if (picked.substring(0, p) === newPick.substring(0, n)) {
+                deck.forEach(element => {
+                    if (element.props.id == picked) {
+                        deck.splice(deck.indexOf(element), 1);
+                    } else if (element.props.id == newPick) {
+                        deck.splice(deck.indexOf(element), 1);
+                    }
+
+                });
+            }
         }
-    }, [picked]);
+    }, [picked, newPick]);
 
-
-    const [deck, setDeck] = useState(shuffle(displayDeck(deckValues)));
     return deck;
 }
 
