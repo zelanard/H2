@@ -2,8 +2,15 @@ import Card from './components/Card';
 import React, { useEffect, useState } from 'react';
 import Deck from './components/Deck';
 
+/**
+ * 
+ */
 export const UserContext = React.createContext();
 
+/**
+ * 
+ * @returns 
+ */
 function App() {
   const [picked, setPicked] = useState(null);
   const [newPick, setNewPick] = useState(null);

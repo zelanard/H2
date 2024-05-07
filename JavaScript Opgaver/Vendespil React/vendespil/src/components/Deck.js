@@ -2,6 +2,13 @@ import { useEffect, useState, useContext } from "react";
 import Card from "./Card";
 import { UserContext } from "../App";
 
+/**
+ * Deck component that handles the rendering and logic of the memory game's deck of cards.
+ * It manages the state of the cards, shuffles them, and updates the game state based on interactions.
+ *
+ * @param {Object} props The props passed to the Deck component.
+ * @returns {Array} An array of Card components representing the shuffled deck.
+ */
 export default function Deck(props) {
     const [picked, setPicked, newPick, setNewPick, resetCards, setResetCards] = useContext(UserContext);
     const [deckValues, setDeckValues] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
@@ -26,6 +33,13 @@ export default function Deck(props) {
     return deck;
 }
 
+/**
+ * Creates a visual representation of the deck using Card components.
+ * Each card value is represented twice in the deck for matching purposes.
+ *
+ * @param {Array} deckValues Array containing unique values for the cards.
+ * @returns {Array} An array of Card components.
+ */
 function displayDeck(deckValues) {
     let result = [];
     deckValues.map((value, index) => {
@@ -43,6 +57,12 @@ function displayDeck(deckValues) {
     return result;
 }
 
+/**
+ * Shuffles the elements of an array in place using the Fisher-Yates algorithm.
+ *
+ * @param {Array} array The array to shuffle.
+ * @returns {Array} The shuffled array.
+ */
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

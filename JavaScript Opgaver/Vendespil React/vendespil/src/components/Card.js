@@ -2,9 +2,11 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../App';
 
 /**
- * 
- * @param {*} props 
- * @returns 
+ * Card component represents a single card in the memory game.
+ * It manages the card state such as whether it's face up or down.
+ *
+ * @param {Object} props The props object containing the card ID and other configurations.
+ * @returns {JSX.Element} The card element as a clickable div that displays either the card face or back based on its state.
  */
 export default function Card(props) {
     const [picked, setPicked, newPick, setNewPick, resetCards, setResetCards] = useContext(UserContext);
@@ -15,7 +17,8 @@ export default function Card(props) {
     }, [resetCards, setResetCards]);
 
     /**
-     * 
+     * Handles the click event on the card.
+     * Toggles the card face visibility and handles the game logic for card comparison and reset.
      */
     const handleClick = () => {
         if (!face) {
@@ -25,7 +28,8 @@ export default function Card(props) {
     };
 
     /**
-     * 
+     * Handles the card turn logic. Determines if the card should show its face based on the game's current state,
+     * and updates the context state for picked and newPick.
      */
     const handleTurnCard = () => {
         if (picked === null) {
@@ -39,7 +43,8 @@ export default function Card(props) {
     }
 
     /**
-     * 
+     * Resets the card's face to hidden when invoked, typically after two cards have been turned and need to be reset.
+     * Also manages resetting context states for the game logic.
      */
     const handleReset = async () => {
         if (picked && newPick) {
