@@ -1,15 +1,17 @@
-import Card from './components/Card';
 import React, { useEffect, useState } from 'react';
 import Deck from './components/Deck';
 
 /**
- * 
+ * Create a Context for the user's current game state.
+ * This context will hold state values and functions that manage the current state of the memory game.
  */
 export const UserContext = React.createContext();
 
 /**
- * 
- * @returns 
+ * The App component serves as the root component for the memory game application.
+ * It provides a React context for the game state and renders the Deck component.
+ *
+ * @returns {JSX.Element} The App component with the Deck wrapped in a UserContext provider.
  */
 function App() {
   const [picked, setPicked] = useState(null);
