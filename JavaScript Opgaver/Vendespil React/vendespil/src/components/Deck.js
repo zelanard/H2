@@ -18,7 +18,6 @@ export default function Deck(props) {
                     } else if (element.props.id == newPick) {
                         deck.splice(deck.indexOf(element), 1);
                     }
-
                 });
             }
         }

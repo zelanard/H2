@@ -6,32 +6,40 @@ export default function Card(props) {
     const [face, setFace] = useState(false);
 
     useEffect(() => {
-        if (resetCards) {
+        handleReset();
+    }, [resetCards, setResetCards]);
+
+    const handleClick = () => {
+        if (!face) {
+            handleReset().then(handleTurnCard());
+            setFace(true);
+        }
+    };
+
+    const handleTurnCard = () => {
+        if (picked === null) {
+            setPicked(props.id);
+        } else if (newPick === null) {
+            setNewPick(props.id);
+            if (picked !== null && newPick !== null) {
+                // Set all cards to reset on next render
+                setResetCards(true);
+            }
+        }
+    }
+
+    const handleReset = async () => {
+        if (picked && newPick) {
+            setResetCards(true);
+            setPicked(props.id);
+            setNewPick(null);
+        } else if (resetCards) {
             setFace(false);
             setResetCards(false);
             setNewPick(null);
             setPicked(null);
         }
-    }, [resetCards, setResetCards]);
-
-    const handleClick = () => {
-        if (!face) {
-            setFace(true);
-            if (picked === null) {
-                setPicked(props.id);
-            } else if (newPick === null) {
-                setNewPick(props.id);
-                if (picked !== null && newPick !== null) {
-                    // Set all cards to reset on next render
-                    setResetCards(true);
-                }
-            } else if (picked && newPick) {
-                setResetCards(true);
-                setPicked(props.id);
-                setNewPick(null);
-            }
-        }
-    };
+    }
 
     return (
         <div style={{
