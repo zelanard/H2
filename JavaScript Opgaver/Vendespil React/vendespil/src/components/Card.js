@@ -22,7 +22,6 @@ export default function Card(props) {
         } else if (newPick === null) {
             setNewPick(props.id);
             if (picked !== null && newPick !== null) {
-                // Set all cards to reset on next render
                 setResetCards(true);
             }
         }
