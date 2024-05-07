@@ -1,6 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../App';
 
+/**
+ * 
+ * @param {*} props 
+ * @returns 
+ */
 export default function Card(props) {
     const [picked, setPicked, newPick, setNewPick, resetCards, setResetCards] = useContext(UserContext);
     const [face, setFace] = useState(false);
@@ -9,6 +14,9 @@ export default function Card(props) {
         handleReset();
     }, [resetCards, setResetCards]);
 
+    /**
+     * 
+     */
     const handleClick = () => {
         if (!face) {
             handleReset().then(handleTurnCard());
@@ -16,6 +24,9 @@ export default function Card(props) {
         }
     };
 
+    /**
+     * 
+     */
     const handleTurnCard = () => {
         if (picked === null) {
             setPicked(props.id);
@@ -27,6 +38,9 @@ export default function Card(props) {
         }
     }
 
+    /**
+     * 
+     */
     const handleReset = async () => {
         if (picked && newPick) {
             setResetCards(true);
